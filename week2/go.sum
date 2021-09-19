@@ -1,0 +1,3 @@
+github.com/neilotoole/errgroup v0.1.6 h1:PODGqPXdT5BC/zCYIMoTrwV+ujKcW+gBXM6Ye9Ve3R8=
+github.com/neilotoole/errgroup v0.1.6/go.mod h1:Q2nLGf+594h0CLBs/Mbg6qOr7GtqDK7C2S41udRnToE=
+golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208/go.mod h1:RxMgew5VJxzue5/jJTE5uejpjVlOe/izrB70Jof72aM=

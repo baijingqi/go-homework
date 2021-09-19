@@ -8,7 +8,7 @@ import (
 
 func main() {
     database.InitDB()
-    res := dao.Find(3)
+    res := dao.Find(2)
     fmt.Println("单条查询", res)
 
     data := dao.GetList()
