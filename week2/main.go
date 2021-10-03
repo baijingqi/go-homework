@@ -44,26 +44,23 @@ func (myHttp *myHttp) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func main() {
     g, ctx := errgroup.WithContext(context.Background())
-
-    g.Go(func() error {
-        fmt.Println(456)
-
-        sigs := make(chan os.Signal)
-        signal.Notify(sigs)
-        // 打印进程id
-        fmt.Println("PID:", os.Getpid())
-        select {
-        case s := <-sigs:
-            fmt.Println("usr2 signal", s)
-            fmt.Println("收到自定义退出信号2")
-            return fmt.Errorf("自定义退出2")
-        }
-    })
-
     g.Go(func() error {
         fmt.Println(123)
         return http.ListenAndServe(":9999", &myHttp{ctx: ctx, g: g})
     })
+
+    g.Go(func() error {
+        sigs := make(chan os.Signal)
+        signal.Notify(sigs)
+        // 打印进程id
+        fmt.Println("PID:", os.Getpid())
+        s := <-sigs
+        fmt.Println("usr2 signal", s)
+        fmt.Println("收到自定义退出信号2")
+        return fmt.Errorf("自定义退出2")
+    })
+
+
     fmt.Println("123123")
     err := g.Wait()
     if err != nil {
