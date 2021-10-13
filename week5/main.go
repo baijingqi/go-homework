@@ -2,52 +2,24 @@ package main
 
 import (
     "fmt"
-    "sync"
     "time"
+    mylimit "week5/limit"
 )
 
-type limitManager struct {
-    maxTicketNum       int
-    serverIngTicketNum int
-    countSecond        int
-    windowStartTime    int64
-    lock               sync.RWMutex
-}
-
 func main() {
-    limitManager := &limitManager{maxTicketNum: 20, countSecond: 20, windowStartTime: time.Now().Unix()}
+    //arr := []int{2,3,4,5,6}
+    //
+    //for key,value := range arr{
+    //    fmt.Println("key=",key, "value=",value)
+    //}
+    //fmt.Println(arr[1:])
 
-    for i := 0; i < 100; i++ {
-        ticket := limitManager.getTicket()
-        if !ticket {
-            fmt.Println("令牌数已超出")
-        } else {
-            fmt.Println("正常请求")
-            go func() {
-                defer limitManager.reduceServingTicket()
-                fmt.Println("do sth")
-            }()
+    limit := mylimit.New(5, 5)
+    for {
+        for i := 0; i < 10; i++ {
+            fmt.Println(limit.GetTicket())
         }
+        fmt.Println("")
+        time.Sleep(4 * time.Second)
     }
-
-}
-
-func (l *limitManager) getTicket() bool {
-    if l.serverIngTicketNum >= l.maxTicketNum {
-        return false
-    }
-
-    l.lock.Lock()
-    l.serverIngTicketNum += 1
-    l.lock.Unlock()
-
-    now := time.Now().Unix()
-    if now-l.windowStartTime >= int64(l.countSecond) {
-        l.windowStartTime = now + 1
-    }
-    return true
-}
-
-func (l *limitManager) reduceServingTicket() {
-    l.serverIngTicketNum--
 }

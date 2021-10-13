@@ -1,3 +1,3 @@
-module week4
+module week5
 
 go 1.17
