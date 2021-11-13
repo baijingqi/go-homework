@@ -43,14 +43,14 @@ func main() {
         return srv.Shutdown(errCtx) // 关闭 http server
     })
 
-    chanel := make(chan os.Signal, 1) //这里要用 buffer 为1的 chan
-    signal.Notify(chanel)
+    channel := make(chan os.Signal, 1) //这里要用 buffer 为1的 chan
+    signal.Notify(channel)
     group.Go(func() error {
         for {
             select {
             case <-errCtx.Done(): // 因为 cancel、timeout、deadline 都可能导致 Done 被 close
                 return errCtx.Err()
-            case <-chanel: // 因为 kill -9 或其他而终止
+            case <-channel: // 因为 kill -9 或其他而终止
                 cancel()
             }
         }

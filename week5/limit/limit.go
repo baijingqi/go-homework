@@ -1,7 +1,6 @@
 package limit
 
 import (
-    "fmt"
     "sync"
     "time"
 )
@@ -26,7 +25,6 @@ func New(maxTicketNum uint, countSecond uint) *limitManager {
 }
 
 func (l *limitManager) GetTicket() bool {
-    fmt.Println(l)
     now := time.Now().Unix()
 
     if now-l.lastRequestTime >= int64(l.countSecond) {

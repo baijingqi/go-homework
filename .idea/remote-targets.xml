@@ -10,7 +10,7 @@
         <ContributedStateBase type="GoLanguageRuntime">
           <config>
             <option name="goPath" value="/mnt/d/homestead_new/Homestead/code/gopath" />
-            <option name="goRoot" value="/usr/local/src/go/bin/go" />
+            <option name="goRoot" value="/usr/local/go/bin/go" />
           </config>
         </ContributedStateBase>
       </target>

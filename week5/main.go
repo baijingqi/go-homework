@@ -20,6 +20,6 @@ func main() {
             fmt.Println(limit.GetTicket())
         }
         fmt.Println("")
-        time.Sleep(4 * time.Second)
+        time.Sleep(1 * time.Second)
     }
 }
