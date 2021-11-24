@@ -8,15 +8,6 @@ import (
     "net"
 )
 
-type goim struct {
-    PacketLen int32
-    HeaderLen int16
-    Version   int16
-    Operation int32
-    Sequence  int32
-    Body      []byte
-}
-
 func main() {
     address := net.TCPAddr{
         IP:   net.IP("0.0.0.0").To4(),

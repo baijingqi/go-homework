@@ -41,18 +41,6 @@ func main()  {
         }
     }
 }
-//func BytesToInt16(b []byte) int16 {
-//    bytesBuffer := bytes.NewBuffer(b)
-//    var x int16
-//    binary.Read(bytesBuffer, binary.BigEndian, &x)
-//    return x
-//}
-//func BytesToInt32(b []byte) int32 {
-//    bytesBuffer := bytes.NewBuffer(b)
-//    var x int32
-//    binary.Read(bytesBuffer, binary.BigEndian, &x)
-//    return x
-//}
 
 func writeFile() {
     packageData := goim{
