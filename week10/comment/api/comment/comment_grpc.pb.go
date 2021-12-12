@@ -19,8 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CommentClient interface {
 	AddComment(ctx context.Context, in *AddCommentRequest, opts ...grpc.CallOption) (*AddCommentReply, error)
-	DelComment(ctx context.Context, in *DelCommentRequest, opts ...grpc.CallOption) (*DelCommentReply, error)
-	CommentList(ctx context.Context, in *DelCommentRequest, opts ...grpc.CallOption) (*DelCommentReply, error)
+	CommentList(ctx context.Context, in *CommentListRequest, opts ...grpc.CallOption) (*CommentListReply, error)
 }
 
 type commentClient struct {
@@ -40,17 +39,8 @@ func (c *commentClient) AddComment(ctx context.Context, in *AddCommentRequest, o
 	return out, nil
 }
 
-func (c *commentClient) DelComment(ctx context.Context, in *DelCommentRequest, opts ...grpc.CallOption) (*DelCommentReply, error) {
-	out := new(DelCommentReply)
-	err := c.cc.Invoke(ctx, "/api.Comment.Comment/DelComment", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *commentClient) CommentList(ctx context.Context, in *DelCommentRequest, opts ...grpc.CallOption) (*DelCommentReply, error) {
-	out := new(DelCommentReply)
+func (c *commentClient) CommentList(ctx context.Context, in *CommentListRequest, opts ...grpc.CallOption) (*CommentListReply, error) {
+	out := new(CommentListReply)
 	err := c.cc.Invoke(ctx, "/api.Comment.Comment/CommentList", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -63,8 +53,7 @@ func (c *commentClient) CommentList(ctx context.Context, in *DelCommentRequest, 
 // for forward compatibility
 type CommentServer interface {
 	AddComment(context.Context, *AddCommentRequest) (*AddCommentReply, error)
-	DelComment(context.Context, *DelCommentRequest) (*DelCommentReply, error)
-	CommentList(context.Context, *DelCommentRequest) (*DelCommentReply, error)
+	CommentList(context.Context, *CommentListRequest) (*CommentListReply, error)
 	mustEmbedUnimplementedCommentServer()
 }
 
@@ -75,10 +64,7 @@ type UnimplementedCommentServer struct {
 func (UnimplementedCommentServer) AddComment(context.Context, *AddCommentRequest) (*AddCommentReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddComment not implemented")
 }
-func (UnimplementedCommentServer) DelComment(context.Context, *DelCommentRequest) (*DelCommentReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DelComment not implemented")
-}
-func (UnimplementedCommentServer) CommentList(context.Context, *DelCommentRequest) (*DelCommentReply, error) {
+func (UnimplementedCommentServer) CommentList(context.Context, *CommentListRequest) (*CommentListReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CommentList not implemented")
 }
 func (UnimplementedCommentServer) mustEmbedUnimplementedCommentServer() {}
@@ -112,26 +98,8 @@ func _Comment_AddComment_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Comment_DelComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DelCommentRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(CommentServer).DelComment(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/api.Comment.Comment/DelComment",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommentServer).DelComment(ctx, req.(*DelCommentRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _Comment_CommentList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DelCommentRequest)
+	in := new(CommentListRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -143,7 +111,7 @@ func _Comment_CommentList_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: "/api.Comment.Comment/CommentList",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CommentServer).CommentList(ctx, req.(*DelCommentRequest))
+		return srv.(CommentServer).CommentList(ctx, req.(*CommentListRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -158,10 +126,6 @@ var Comment_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddComment",
 			Handler:    _Comment_AddComment_Handler,
-		},
-		{
-			MethodName: "DelComment",
-			Handler:    _Comment_DelComment_Handler,
 		},
 		{
 			MethodName: "CommentList",

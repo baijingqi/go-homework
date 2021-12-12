@@ -1,7 +1,8 @@
 package data
 
+import "C"
 import (
-    _ "comment/ent/comment"
+    entComment "comment/ent/comment"
     "comment/internal/biz"
     "context"
     "encoding/json"
@@ -57,4 +58,33 @@ func (r *CommentRepo) UpdateComment(ctx context.Context, g *biz.Comment) error {
 }
 func (r *CommentRepo) DelComment(ctx context.Context, g *biz.Comment) (bool, error) {
     return true, nil
+}
+
+func (r *CommentRepo) CommentList(ctx context.Context, commentId uint64, relationId uint64, relationType uint32, uid uint64, page uint32, size uint) ([]*biz.Comment, error) {
+    var arr []*biz.Comment
+    client := r.data.DB.Comment
+    query := client.Query().Where(entComment.RelationIDEQ(relationId)).Where(entComment.RelationTypeEQ(relationType))
+    if commentId != 0 {
+        query = query.Where(entComment.BelongCommentIDEQ(commentId))
+    }
+    if uid != 0 {
+        query = query.Where(entComment.UIDEQ(uid))
+    }
+    limit := (page - 1) * uint32(size)
+    res, err := query.Limit(int(limit)).Offset(int(size)).All(ctx)
+    if err != nil {
+        r.log.Error(err)
+        return arr, err
+    }
+    for _, val := range res {
+        arr = append(arr, &biz.Comment{
+            Id:              val.ID,
+            Uid:             val.UID,
+            RelationId:      val.RelationID,
+            RelationType:    val.RelationType,
+            BelongCommentId: val.BelongCommentID,
+            CreatedAt:       val.CreatedAt,
+        })
+    }
+    return arr, err
 }
