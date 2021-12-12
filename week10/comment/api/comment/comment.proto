@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package api.Comment;
+import "google/api/annotations.proto";
+
+option go_package = "helloworld/api/Comment;Comment";
+option java_multiple_files = true;
+option java_package = "api.Comment";
+
+service Comment {
+    rpc AddComment(AddCommentRequest) returns (AddCommentReply) {
+        option (google.api.http) = {
+            get: "/comment/add"
+        };
+    }
+    rpc DelComment(DelCommentRequest) returns (DelCommentReply) {
+        option (google.api.http) = {
+            get: "/comment/Del"
+        };
+    }
+    rpc CommentList(DelCommentRequest) returns (DelCommentReply) {
+        option (google.api.http) = {
+            get: "/comment/list"
+        };
+    }
+}
+
+message AddCommentRequest {
+    uint64 uid = 1;
+    uint64 relation_id = 2;
+    uint32 relation_type = 3;
+    optional  uint64 parent_id = 4;
+    string content = 5;
+}
+
+message AddCommentReply {
+    uint64 id = 4;
+}
+
+message DelCommentRequest {
+    uint64 id = 1;
+    uint64 uid = 2;
+}
+
+message DelCommentReply {
+    bool ok = 1;
+}
+
+message CommentListRequest {
+    uint32 page = 1;
+    uint32 parent_id = 2;
+    uint32 relation_id = 3;
+    uint32 relation_type = 4;
+    uint64 uid = 5;
+}
+
+message CommentListStruct {
+    uint64 id = 1;
+    string  content = 2;
+    string  created_at = 3;
+    uint64  praise_num = 4;
+    uint64  reply_num = 5;
+    message user{
+        uint64 uid = 1;
+        uint32 level = 2;
+        string nickname = 3;
+        string avatar = 4;
+    }
+    repeated CommentListStruct reply_list = 6;
+}
+
+
+message CommentListReply {
+    uint32 code = 1;
+    string  msg = 2;
+    repeated CommentListStruct list = 3;
+}
+

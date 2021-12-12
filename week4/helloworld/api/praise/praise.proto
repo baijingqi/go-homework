@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package api.praise;
+import "google/api/annotations.proto";
+import "google/api/http.proto";
+
+option go_package = "helloworld/api/praise;praise";
+option java_multiple_files = true;
+option java_package = "api.praise";
+
+service Praise {
+    rpc IsPraisePraise (IsPraisePraiseRequest) returns (IsPraisePraiseReply);
+
+    rpc AddPraise(AddPraiseRequest) returns (AddPraiseReply) {
+        option (google.api.http) = {
+            get: "/praise/add"
+        };
+    }
+
+    rpc CancelPraise(CancelPraiseRequest) returns (CancelPraiseReply) {
+        option (google.api.http) = {
+            get: "/praise/cancel"
+        };
+    }
+    rpc CancelPraise(CancelPraiseRequest) returns (CancelPraiseReply) {
+        option (google.api.) = {
+            get: "/praise/cancel"
+        };
+    }
+
+
+}
+
+message AddPraiseRequest {
+    int64 uid = 1;
+    int32 relation_type = 3;
+    int32 relation_id = 2;
+}
+message AddPraiseReply {
+    int32 code = 1;
+    string  msg = 2;
+    message data{
+        bool ok = 3;
+    }
+}
+
+message CancelPraiseRequest {
+    int64 uid = 1;
+    int32 relation_type = 3;
+    int32 relation_id = 2;
+}
+message CancelPraiseReply {
+    int32 code = 1;
+    string  msg = 2;
+    message data{
+        bool ok = 3;
+    }
+}
+
+message IsPraisePraiseRequest {
+    string uids = 1;
+    int32 relation_type = 3;
+    int32 relation_id = 2;
+}
+message IsPraisePraiseReply {
+    int32 code = 1;
+    string  msg = 2;
+    message data{
+        int64 uid = 3;
+        bool isPraise = 4;
+    }
+}
+

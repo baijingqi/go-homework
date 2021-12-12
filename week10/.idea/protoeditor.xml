@@ -5,7 +5,7 @@
     <option name="importPathEntries">
       <list>
         <ImportPathEntry>
-          <option name="location" value="file://$PROJECT_DIR$/week4/helloworld/third_party" />
+          <option name="location" value="file://$PROJECT_DIR$/comment/third_party" />
         </ImportPathEntry>
       </list>
     </option>
