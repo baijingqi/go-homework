@@ -6,6 +6,7 @@ import (
     "comment/internal/biz"
     "context"
     "encoding/json"
+    "fmt"
     "github.com/Shopify/sarama"
     "github.com/go-kratos/kratos/v2/log"
 )
@@ -60,18 +61,24 @@ func (r *CommentRepo) DelComment(ctx context.Context, g *biz.Comment) (bool, err
     return true, nil
 }
 
-func (r *CommentRepo) CommentList(ctx context.Context, commentId uint64, relationId uint64, relationType uint32, uid uint64, page uint32, size uint) ([]*biz.Comment, error) {
+func (r *CommentRepo) CommentList(ctx context.Context, belongCommentId uint64, relationId uint64, relationType uint32, uid uint64, page uint32, size uint) ([]*biz.Comment, error) {
     var arr []*biz.Comment
     client := r.data.DB.Comment
-    query := client.Query().Where(entComment.RelationIDEQ(relationId)).Where(entComment.RelationTypeEQ(relationType))
-    if commentId != 0 {
-        query = query.Where(entComment.BelongCommentIDEQ(commentId))
+
+    query :=  client.Query()
+    if relationId!= 0 {
+        query = query.Where(entComment.RelationIDEQ(relationId));
     }
+    if relationType!= 0 {
+        query =  query.Where(entComment.RelationTypeEQ(relationType));
+    }
+    query = query.Where(entComment.BelongCommentIDEQ(belongCommentId))
     if uid != 0 {
+        fmt.Println("uid=", uid)
         query = query.Where(entComment.UIDEQ(uid))
     }
-    limit := (page - 1) * uint32(size)
-    res, err := query.Limit(int(limit)).Offset(int(size)).All(ctx)
+    offset := (page - 1) * uint32(size)
+    res, err := query.Limit(int(size)).Offset(int(offset)).All(ctx)
     if err != nil {
         r.log.Error(err)
         return arr, err
@@ -83,6 +90,8 @@ func (r *CommentRepo) CommentList(ctx context.Context, commentId uint64, relatio
             RelationId:      val.RelationID,
             RelationType:    val.RelationType,
             BelongCommentId: val.BelongCommentID,
+            Content:         val.Content,
+            ParentId:        val.ParentID,
             CreatedAt:       val.CreatedAt,
         })
     }

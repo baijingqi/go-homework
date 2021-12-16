@@ -4,6 +4,7 @@ import (
     v1 "comment/api/comment"
     "comment/internal/biz"
     "context"
+    "fmt"
     "github.com/go-kratos/kratos/v2/log"
 )
 
@@ -11,18 +12,27 @@ import (
 type CommentService struct {
     v1.UnimplementedCommentServer
 
-    cc  *biz.CommentUseCase
-    log *log.Helper
+    cc        *biz.CommentUseCase
+    countCase *biz.CommentCountUseCase
+    log       *log.Helper
 }
 
-func NewCommentService(oc *biz.CommentUseCase, logger log.Logger) *CommentService {
+func NewCommentService(oc *biz.CommentUseCase, countCase *biz.CommentCountUseCase, logger log.Logger) *CommentService {
     return &CommentService{
-        cc:  oc,
-        log: log.NewHelper(log.With(logger, "module", "service/comment"))}
+        cc:        oc,
+        countCase: countCase,
+        log:       log.NewHelper(log.With(logger, "module", "service/comment"))}
 }
 
 func (c *CommentService) CommentList(ctx context.Context, req *v1.CommentListRequest) (*v1.CommentListReply, error) {
-    arr, err := c.cc.CommentList(ctx, req.CommentId, req.RelationId, req.RelationType, req.Uid, req.Page, 20)
+    if req.RelationId == 0 || req.RelationType == 0 || req.Page == 0 {
+        return &v1.CommentListReply{
+            Code: 417,
+            Msg:  "请求参数错误",
+        }, nil
+    }
+
+    arr, err := c.cc.CommentList(ctx, c.countCase, req.CommentId, req.RelationId, req.RelationType, req.Uid, req.Page, 20)
     if err != nil {
         return &v1.CommentListReply{
             Code: 500,
@@ -32,8 +42,9 @@ func (c *CommentService) CommentList(ctx context.Context, req *v1.CommentListReq
 
     list := convertCommentList(arr)
     for key, val := range list {
-        if val.ParentId != 0 {
-            replyList, err := c.cc.CommentList(ctx, val.Id, 0, 0, 0, 1, 3)
+        if val.ParentId == 0 {
+            replyList, err := c.cc.CommentList(ctx, c.countCase, val.Id, 0, 0, 0, 1, 3)
+            fmt.Println(replyList)
             if err != nil {
                 continue
             }

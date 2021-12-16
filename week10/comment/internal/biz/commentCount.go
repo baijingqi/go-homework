@@ -6,10 +6,10 @@ import (
 )
 
 type CommentCount struct {
-    Id         uint64
-    PraiseNum  uint32
-    ReplyNum   uint32
-    DislikeNum uint32
+    Id         uint64 `json:"Id,omitempty"`
+    PraiseNum  uint32 `json:"PraiseNum"`
+    ReplyNum   uint32 `json:"ReplyNum"`
+    DislikeNum uint32 `json:"DislikeNum"`
 }
 
 type CommentCountRepo interface {
@@ -21,6 +21,11 @@ type CommentCountUseCase struct {
     log  *log.Helper
 }
 
+func NewCommentCountUseCase(repo CommentCountRepo, logger log.Logger) *CommentCountUseCase {
+    return &CommentCountUseCase{repo: repo, log: log.NewHelper(logger)}
+}
+
 func (uc *CommentCountUseCase) CommentInfo(ctx context.Context, commentId uint64) (*CommentCount, error) {
-    return uc.repo.CommentInfo(ctx, commentId)
+    res, err := uc.repo.CommentInfo(ctx, commentId)
+    return res, err
 }

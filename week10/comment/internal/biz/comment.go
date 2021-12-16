@@ -2,6 +2,7 @@ package biz
 
 import (
     "context"
+    "fmt"
     "github.com/go-kratos/kratos/v2/log"
     "time"
 )
@@ -26,8 +27,9 @@ type CommentRepo interface {
 }
 
 type CommentUseCase struct {
-    repo CommentRepo
-    log  *log.Helper
+    repo      CommentRepo
+    log       *log.Helper
+    countCase *CommentCountUseCase
 }
 
 func NewCommentUseCase(repo CommentRepo, logger log.Logger) *CommentUseCase {
@@ -42,16 +44,17 @@ func (uc *CommentUseCase) Del(ctx context.Context, g *Comment) (bool, error) {
     return uc.repo.DelComment(ctx, g)
 }
 
-func (uc *CommentUseCase) CommentList(ctx context.Context, commentId uint64, relationId uint64, relationType uint32, uid uint64, page uint32, size uint) ([]*Comment, error) {
-    arr, err := uc.repo.CommentList(ctx, commentId, relationId, relationType, uid, page, size)
+func (uc *CommentUseCase) CommentList(ctx context.Context, countCase *CommentCountUseCase, belongCommentId uint64, relationId uint64, relationType uint32, uid uint64, page uint32, size uint) ([]*Comment, error) {
+    arr, err := uc.repo.CommentList(ctx, belongCommentId, relationId, relationType, uid, page, size)
     if err != nil {
         uc.log.Error(log.LevelFatal, err)
         return arr, err
     }
-    countCase := &CommentCountUseCase{}
+
     for key, val := range arr {
-        info, err := countCase.CommentInfo(ctx, val.Id)
-        if err == nil {
+        info, _ := countCase.CommentInfo(ctx, val.Id)
+        fmt.Println(info)
+        if info != nil {
             arr[key].PraiseNum = info.PraiseNum
             arr[key].ReplyNum = info.ReplyNum
         }

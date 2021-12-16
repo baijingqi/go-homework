@@ -13,7 +13,7 @@ import (
 )
 
 // ProviderSet is data providers.
-var ProviderSet = wire.NewSet(NewData, NewCommentRepo)
+var ProviderSet = wire.NewSet(NewData, NewCommentRepo,NewCommentCountRepo)
 
 // Data .
 type Data struct {
@@ -25,10 +25,15 @@ type Data struct {
     Redis *redis.Client
 }
 
+var instance *Data
+
 // NewData .
 func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
     cleanup := func() {
         log.NewHelper(logger).Info("closing the data resources")
+    }
+    if instance != nil {
+        return instance, cleanup, nil
     }
     client, err := ent.Open(c.Database.GetDriver(), c.Database.GetSource())
     if err != nil {
@@ -49,13 +54,17 @@ func NewData(c *conf.Data, logger log.Logger) (*Data, func(), error) {
         logger.Log(log.LevelFatal, err)
         return nil, nil, err
     }
-
-    return &Data{
+    instance = &Data{
         db:    client,
         DB:    client,
         Kafka: kafkaClient,
         Redis: redisClient,
-    }, cleanup, nil
+    }
+    return instance, cleanup, nil
+}
+
+func GetInstance() *Data {
+    return instance
 }
 
 func initKafka(c *conf.Data, logger log.Logger) (sarama.SyncProducer, error) {
@@ -63,6 +72,8 @@ func initKafka(c *conf.Data, logger log.Logger) (sarama.SyncProducer, error) {
     //设置
     //ack应答机制
     config.Producer.RequiredAcks = sarama.WaitForAll
+
+    config.Producer.Timeout = 3
     //发送分区
     config.Producer.Partitioner = sarama.NewRandomPartitioner
     //回复确认
@@ -78,8 +89,8 @@ func initKafka(c *conf.Data, logger log.Logger) (sarama.SyncProducer, error) {
 
 func initRedis(c *conf.Data, logger log.Logger) (*redis.Client, error) {
     client := redis.NewClient(&redis.Options{
-        Addr:     c.Redis.GetAddr(),
-        DB:       0,
+        Addr: c.Redis.GetAddr(),
+        DB:   0,
     })
 
     _, err := client.Ping().Result()
