@@ -39,13 +39,13 @@ go get github.com/google/wire/cmd/wire
 cd cmd/server
 wire
 ```
-项目启动过程
 
-1、启动本地mysql、redis、kafka
-2、在comment目录执行kratos run    启动comment http服务和grpc服务
-3、在user目录执行kratos run       启动user http服务和grpc服务
-4、执行go run internal/job/commentSubcribe.go 订阅kafka
+## Docker
+```bash
+# build
+docker build -t <your-docker-image-name> .
 
-测试
-浏览器访问  http://127.0.0.1:8000/comment/add?uid=2&parent_id=7&content=666&relation_id=1&relation_type=1 进行添加评论
-     访问  http://127.0.0.1:8000/comment/list?page=1&relation_id=1&relation_type=1 获取评论列表
+# run
+docker run --rm -p 8000:8000 -p 9000:9000 -v </path/to/your/configs>:/data/conf <your-docker-image-name>
+```
+

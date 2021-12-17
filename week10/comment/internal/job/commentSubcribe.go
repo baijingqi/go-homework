@@ -85,7 +85,11 @@ func main() {
             fmt.Println(parentInfo)
             if parentInfo != nil {
                 replyToUid = parentInfo.UID
-                belongCommentId = parentInfo.UID
+                if parentInfo.BelongCommentID == 0{
+                    belongCommentId = parentInfo.ID
+                }else{
+                    belongCommentId = parentInfo.BelongCommentID
+                }
             }
             fmt.Println("replyToUid=", replyToUid)
             save, err := dataRepo.DB.Comment.Create().
