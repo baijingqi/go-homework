@@ -6,7 +6,6 @@ import (
     "comment/internal/biz"
     "context"
     "encoding/json"
-    "fmt"
     "github.com/Shopify/sarama"
     "github.com/go-kratos/kratos/v2/log"
 )
@@ -65,16 +64,15 @@ func (r *CommentRepo) CommentList(ctx context.Context, belongCommentId uint64, r
     var arr []*biz.Comment
     client := r.data.DB.Comment
 
-    query :=  client.Query()
-    if relationId!= 0 {
-        query = query.Where(entComment.RelationIDEQ(relationId));
+    query := client.Query()
+    if relationId != 0 {
+        query = query.Where(entComment.RelationIDEQ(relationId))
     }
-    if relationType!= 0 {
-        query =  query.Where(entComment.RelationTypeEQ(relationType));
+    if relationType != 0 {
+        query = query.Where(entComment.RelationTypeEQ(relationType))
     }
     query = query.Where(entComment.BelongCommentIDEQ(belongCommentId))
     if uid != 0 {
-        fmt.Println("uid=", uid)
         query = query.Where(entComment.UIDEQ(uid))
     }
     offset := (page - 1) * uint32(size)

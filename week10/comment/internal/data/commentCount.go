@@ -4,10 +4,12 @@ import "C"
 import (
     "comment/ent"
     "comment/internal/biz"
+    "comment/pkg"
     "context"
     "errors"
     "github.com/fatih/structs"
     "github.com/go-kratos/kratos/v2/log"
+    "github.com/go-redis/redis"
     "math/rand"
     "strconv"
     "time"
@@ -72,14 +74,48 @@ func (uc *CommentCountRepo) CommentInfo(ctx context.Context, commentId uint64) (
         }, err
     } else {
         info := biz.CommentCount{}
-        num, err := strconv.ParseInt(result["PraiseNum"], 10, 64)
-        info.PraiseNum = uint32(num)
-
-        dislikeNum, err := strconv.ParseInt(result["DislikeNum"], 10, 64)
-        info.DislikeNum = uint32(dislikeNum)
-
-        replyNum, err := strconv.ParseInt(result["ReplyNum"], 10, 64)
-        info.ReplyNum = uint32(replyNum)
+        info.PraiseNum = pkg.ToUint32(result["PraiseNum"])
+        info.DislikeNum = pkg.ToUint32(result["DislikeNum"])
+        info.ReplyNum = pkg.ToUint32(result["ReplyNum"])
         return &info, err
     }
+}
+
+func (uc *CommentCountRepo) BatchCommentInfo(ctx context.Context, commentIds []uint64) (map[uint64]*biz.CommentCount, error) {
+    pipeline := uc.data.Redis.Pipeline()
+    for _, commentId := range commentIds {
+        pipeline.HGetAll("commentCountInfo:" + strconv.FormatUint(commentId, 10))
+    }
+
+    result := make(map[uint64]*biz.CommentCount)
+    cmd, _ := pipeline.Exec()
+
+    for _, val := range cmd {
+        mapCmd := val.(*redis.StringStringMapCmd)
+        resMap := mapCmd.Val()
+        id := pkg.ToUint64(resMap["ID"])
+        result[id] = &biz.CommentCount{
+            Id:         id,
+            PraiseNum:  pkg.ToUint32(resMap["PraiseNum"]),
+            ReplyNum:   pkg.ToUint32(resMap["ReplyNum"]),
+            DislikeNum: pkg.ToUint32(resMap["DislikeNum"]),
+        }
+    }
+
+    reQueryIds := make([]uint64, 0)
+    for _, commentId := range commentIds {
+        if _, ok := result[commentId]; !ok {
+            reQueryIds = append(reQueryIds, commentId)
+        }
+    }
+
+    for _, reQueryId := range reQueryIds {
+        res, err := uc.CommentInfo(ctx, reQueryId)
+        if err != nil {
+            result[reQueryId] = &biz.CommentCount{}
+        } else {
+            result[reQueryId] = res
+        }
+    }
+    return result, nil
 }

@@ -2,7 +2,6 @@ package biz
 
 import (
     "context"
-    "fmt"
     "github.com/go-kratos/kratos/v2/log"
     "time"
 )
@@ -50,13 +49,16 @@ func (uc *CommentUseCase) CommentList(ctx context.Context, countCase *CommentCou
         uc.log.Error(log.LevelFatal, err)
         return arr, err
     }
-
+    commentIds := make([]uint64, 0)
+    for _, val := range arr {
+        commentIds = append(commentIds, val.Id)
+    }
+    commentCountInfos, _ := countCase.BatchCommentInfo(ctx, commentIds)
     for key, val := range arr {
-        info, _ := countCase.CommentInfo(ctx, val.Id)
-        fmt.Println(info)
-        if info != nil {
-            arr[key].PraiseNum = info.PraiseNum
-            arr[key].ReplyNum = info.ReplyNum
+        val, ok := commentCountInfos[val.Id]
+        if ok {
+            arr[key].PraiseNum = val.PraiseNum
+            arr[key].ReplyNum = val.ReplyNum
         }
     }
     return arr, err

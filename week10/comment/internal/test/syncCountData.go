@@ -45,8 +45,9 @@ func main() {
     ctx := context.Background()
     defer cleanup()
 
-    repo := data.NewCommentRepo(dataData, logger)
-    res, err := repo.CommentList(ctx, 1, 0, 0, 0, 1, 3)
+    repo := data.NewCommentCountRepo(dataData, logger)
+    var ids = []uint64{1,2,3}
+    res, err := repo.BatchCommentInfo(ctx,ids)
     fmt.Println(res, err)
 
     return

@@ -14,6 +14,7 @@ type CommentCount struct {
 
 type CommentCountRepo interface {
     CommentInfo(ctx context.Context, commentId uint64) (*CommentCount, error)
+    BatchCommentInfo(ctx context.Context, commentIds []uint64) (map[uint64]*CommentCount, error)
 }
 
 type CommentCountUseCase struct {
@@ -27,5 +28,9 @@ func NewCommentCountUseCase(repo CommentCountRepo, logger log.Logger) *CommentCo
 
 func (uc *CommentCountUseCase) CommentInfo(ctx context.Context, commentId uint64) (*CommentCount, error) {
     res, err := uc.repo.CommentInfo(ctx, commentId)
+    return res, err
+}
+func (uc *CommentCountUseCase) BatchCommentInfo(ctx context.Context, commentIds []uint64) (map[uint64]*CommentCount, error) {
+    res, err := uc.repo.BatchCommentInfo(ctx, commentIds)
     return res, err
 }

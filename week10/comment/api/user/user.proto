@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package api.User;
+import "google/api/annotations.proto";
+
+option go_package = "helloworld/api/User;User";
+option java_multiple_files = true;
+option java_package = "api.User";
+
+service User {
+    rpc UserList(UserListRequest) returns (UserListReply) {
+        option (google.api.http) = {
+            get: "/user/list"
+        };
+    }
+}
+
+message UserListRequest {
+    uint32 page = 1;
+    uint64 UserId = 2;
+    uint64 relation_id = 3;
+    uint32 relation_type = 4;
+    uint64 uid = 5;
+}
+
+message userStruct{
+    uint64 uid = 1;
+    uint32 level = 2;
+    string nickname = 3;
+    string avatar = 4;
+}
+
+message UserListStruct {
+    repeated userStruct users = 8;
+}
+
+
+message UserListReply {
+    uint32 code = 1;
+    string  msg = 2;
+    repeated UserListStruct list = 3;
+}
+
